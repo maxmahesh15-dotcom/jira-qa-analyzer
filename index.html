@@ -11,8 +11,8 @@
     --surface: #0c1120;
     --surface2: #111827;
     --border: #1e2d45;
-    --accent: #3b82f6;
-    --accent2: #06b6d4;
+    --accent: #f55036;
+    --accent2: #ff8c00;
     --green: #10b981;
     --red: #ef4444;
     --yellow: #f59e0b;
@@ -36,15 +36,15 @@
   .logo { display: flex; align-items: center; gap: 12px; }
   .logo-icon {
     width: 40px; height: 40px; border-radius: 10px;
-    background: linear-gradient(135deg, #4285f4, #34a853);
+    background: linear-gradient(135deg, #f55036, #ff8c00);
     display: flex; align-items: center; justify-content: center; font-size: 20px;
-    box-shadow: 0 0 20px rgba(66,133,244,0.4);
+    box-shadow: 0 0 20px rgba(245,80,54,0.4);
   }
   .logo-text { font-size: 18px; font-weight: 700; color: #f1f5f9; font-family: var(--mono); }
   .logo-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .header-badge {
-    background: rgba(66,133,244,0.1); border: 1px solid rgba(66,133,244,0.3);
-    color: #93c5fd; font-size: 11px; font-family: var(--mono);
+    background: rgba(245,80,54,0.1); border: 1px solid rgba(245,80,54,0.3);
+    color: #ffb347; font-size: 11px; font-family: var(--mono);
     padding: 4px 12px; border-radius: 20px;
   }
 
@@ -56,7 +56,7 @@
     font-family: var(--sans); font-size: 13px; font-weight: 600;
     transition: all 0.2s; background: none; color: var(--muted);
   }
-  .main-tab.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+  .main-tab.active { background: linear-gradient(135deg,#f55036,#ff8c00); color: white; box-shadow: 0 2px 8px rgba(245,80,54,0.4); }
 
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
   .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--mono); margin-bottom: 8px; display: block; }
@@ -72,30 +72,21 @@
   textarea { min-height: 180px; resize: vertical; line-height: 1.65; }
   .char-count { font-size: 11px; color: var(--muted); margin-top: 5px; font-family: var(--mono); }
 
-  /* API KEY BANNER */
-  .key-banner {
-    border-radius: 10px; padding: 16px 18px; margin-bottom: 18px;
-    display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
-  }
-  .key-banner.needs { background: rgba(66,133,244,0.08); border: 1px solid rgba(66,133,244,0.35); }
-  .key-banner.saved { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.35); display: none; }
+  /* KEY BANNER */
+  .key-banner { border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; }
+  .key-banner.needs { background: rgba(245,80,54,0.07); border: 1px solid rgba(245,80,54,0.3); }
+  .key-banner.saved { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.3); }
   .key-banner-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
-  .key-banner.needs .key-banner-title { color: #93c5fd; }
+  .key-banner.needs .key-banner-title { color: #ffb347; }
   .key-banner.saved .key-banner-title { color: #6ee7b7; }
-  .key-banner-sub { font-size: 11px; color: var(--muted); line-height: 1.5; }
-  .key-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
-  .key-input { flex: 1; min-width: 220px; font-family: var(--mono); font-size: 13px; }
-  .btn-save-key {
-    background: linear-gradient(135deg, #4285f4, #34a853); color: white;
-    border: none; border-radius: 7px; padding: 9px 18px;
-    font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
-  }
-  .btn-clear-key {
-    background: none; border: 1px solid var(--border); border-radius: 7px;
-    color: var(--muted); font-size: 12px; padding: 5px 12px; cursor: pointer; margin-top: 8px;
-  }
-  .key-steps { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.8; }
-  .key-steps a { color: #93c5fd; }
+  .key-banner-sub { font-size: 11px; color: var(--muted); line-height: 1.6; }
+  .key-steps { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.9; }
+  .key-steps a { color: #ffb347; text-decoration: none; }
+  .key-steps a:hover { text-decoration: underline; }
+  .key-row { display: flex; gap: 8px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .key-input { flex: 1; min-width: 220px; }
+  .btn-save-key { background: linear-gradient(135deg,#f55036,#ff8c00); color: white; border: none; border-radius: 7px; padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .btn-clear-key { background: none; border: 1px solid var(--border); border-radius: 7px; color: var(--muted); font-size: 12px; padding: 5px 12px; cursor: pointer; margin-top: 8px; }
 
   /* SLA */
   .sla-box { border-radius: 8px; padding: 12px 16px; margin-bottom: 14px; font-size: 13px; line-height: 1.6; display: none; }
@@ -105,33 +96,27 @@
 
   .error-counter { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin-bottom: 14px; }
   .error-counter-title { font-size: 12px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
-  .error-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .error-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
   .error-stat { background: var(--surface); border-radius: 8px; padding: 12px; text-align: center; border: 1px solid var(--border); }
   .error-stat-num { font-size: 26px; font-weight: 700; font-family: var(--mono); }
   .error-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
   .error-stat.red .error-stat-num { color: var(--red); }
-  .error-stat.yellow .error-stat-num { color: var(--yellow); }
   .error-stat.green .error-stat-num { color: var(--green); }
 
   .btn-analyze {
     width: 100%; padding: 14px; border: none; border-radius: 10px; margin-top: 14px;
     font-family: var(--sans); font-size: 15px; font-weight: 700; cursor: pointer;
-    background: linear-gradient(135deg, #4285f4, #34a853);
-    color: white; letter-spacing: 0.03em;
-    transition: all 0.2s; box-shadow: 0 4px 16px rgba(66,133,244,0.35);
+    background: linear-gradient(135deg,#f55036,#ff8c00); color: white; letter-spacing: 0.03em;
+    transition: all 0.2s; box-shadow: 0 4px 16px rgba(245,80,54,0.35);
   }
-  .btn-analyze:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(66,133,244,0.5); }
+  .btn-analyze:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,80,54,0.5); }
   .btn-analyze:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
 
-  .err-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 14px; color: #fca5a5; font-size: 13px; margin-top: 14px; word-break: break-word; display: none; }
+  .err-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 14px; color: #fca5a5; font-size: 13px; margin-top: 14px; word-break: break-word; white-space: pre-wrap; display: none; }
 
   #results { display: none; margin-top: 24px; }
 
-  .score-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-    padding: 24px; margin-bottom: 20px;
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
-  }
+  .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
   .rings { display: flex; gap: 28px; flex-wrap: wrap; }
   .ring-wrap { text-align: center; }
   .ring-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; font-family: var(--mono); }
@@ -142,31 +127,31 @@
 
   .res-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
   .res-tab { background: none; border: none; padding: 9px 18px; font-size: 13px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-family: var(--sans); font-weight: 600; transition: all 0.15s; }
-  .res-tab.active { color: #93c5fd; border-bottom: 2px solid var(--accent); }
+  .res-tab.active { color: #ffb347; border-bottom: 2px solid var(--accent); }
 
   .section-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; font-family: var(--mono); }
   .item-block { border-left: 3px solid; border-radius: 6px; padding: 9px 13px; margin-bottom: 6px; font-size: 13px; color: #cbd5e1; line-height: 1.55; background: var(--surface2); }
   .item-block.red { border-color: var(--red); }
   .item-block.yellow { border-color: var(--yellow); }
-  .item-block.blue { border-color: var(--accent); }
+  .item-block.blue { border-color: #3b82f6; }
   .item-block.purple { border-color: var(--purple); }
   .item-block.green { border-color: var(--green); }
-  .item-block.cyan { border-color: var(--accent2); }
+  .item-block.cyan { border-color: #06b6d4; }
   .section-group { margin-bottom: 20px; }
-  pre.improved { background: var(--surface2); border-left: 3px solid var(--accent2); border-radius: 6px; padding: 16px; font-size: 13px; color: #cbd5e1; line-height: 1.7; white-space: pre-wrap; word-break: break-word; font-family: var(--mono); }
+  pre.improved { background: var(--surface2); border-left: 3px solid #06b6d4; border-radius: 6px; padding: 16px; font-size: 13px; color: #cbd5e1; line-height: 1.7; white-space: pre-wrap; word-break: break-word; font-family: var(--mono); }
 
   .feedback-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
   .feedback-header { font-size: 16px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
   .feedback-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
   .feedback-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 14px; }
-  .feedback-box h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .feedback-box h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--text); }
   .feedback-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
   .feedback-field { display: flex; flex-direction: column; gap: 5px; }
-  .feedback-generated { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; min-height: 120px; font-size: 13px; color: #cbd5e1; line-height: 1.75; white-space: pre-wrap; word-break: break-word; font-family: var(--mono); display: none; }
-  .btn-gen { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; font-family: var(--sans); font-size: 14px; font-weight: 700; margin-top: 10px; transition: all 0.2s; }
+  .feedback-generated { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; font-size: 13px; color: #cbd5e1; line-height: 1.75; white-space: pre-wrap; word-break: break-word; font-family: var(--mono); display: none; }
+  .btn-gen { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; background: linear-gradient(135deg,#8b5cf6,#6366f1); color: white; font-family: var(--sans); font-size: 14px; font-weight: 700; margin-top: 10px; transition: all 0.2s; }
   .btn-gen:hover { opacity: 0.9; }
   .btn-copy { padding: 8px 18px; border: 1px solid var(--border); border-radius: 7px; cursor: pointer; background: var(--surface); color: var(--text); font-family: var(--sans); font-size: 12px; margin-top: 10px; transition: all 0.2s; }
-  .btn-copy:hover { border-color: var(--accent); color: #93c5fd; }
+  .btn-copy:hover { border-color: var(--accent); color: #ffb347; }
 
   .tracker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
   .tracker-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
@@ -179,8 +164,8 @@
   .tag.warn { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
   .tag.ok { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
 
-  @media (max-width: 600px) {
-    .field-row, .tracker-grid, .feedback-row, .error-grid { grid-template-columns: 1fr; }
+  @media (max-width:600px) {
+    .field-row,.tracker-grid,.feedback-row,.error-grid { grid-template-columns: 1fr; }
     .rings { gap: 16px; }
     .header { flex-direction: column; gap: 10px; align-items: flex-start; }
   }
@@ -196,33 +181,33 @@
       <div class="logo-sub">Team Feedback & SLA Compliance Tool</div>
     </div>
   </div>
-  <div class="header-badge">Powered by Gemini AI — Free</div>
+  <div class="header-badge">Powered by Groq AI — Free</div>
 </div>
 
 <div class="container">
 
-  <!-- API KEY BANNER -->
+  <!-- KEY BANNER -->
   <div class="key-banner needs" id="keyBannerNeeds">
-    <div style="font-size:24px">🔑</div>
+    <div style="font-size:26px;margin-top:2px">🔑</div>
     <div style="flex:1">
-      <div class="key-banner-title">Google Gemini API Key Required (Free)</div>
-      <div class="key-banner-sub">Get your free API key in 1 minute. No credit card needed. Key is saved in your browser only.</div>
+      <div class="key-banner-title">Groq API Key Required — 100% Free, No Credit Card</div>
+      <div class="key-banner-sub">Get your free key in under 1 minute. No billing, no quota issues, no cost ever.</div>
       <div class="key-steps">
-        1. Go to <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a><br/>
-        2. Click <strong style="color:#e2e8f0">Create API Key</strong><br/>
-        3. Copy and paste it below, then click <strong style="color:#e2e8f0">Save Key</strong>
+        1. Go to <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> &nbsp;(sign in with Google)<br/>
+        2. Click <strong style="color:#e2e8f0">Create API Key</strong> → give it any name<br/>
+        3. Copy the key and paste it below, then click <strong style="color:#e2e8f0">Save Key</strong>
       </div>
       <div class="key-row">
-        <input type="password" class="key-input" id="apiKeyInput" placeholder="AIza..."/>
+        <input type="password" class="key-input" id="apiKeyInput" placeholder="gsk_..."/>
         <button class="btn-save-key" onclick="saveKey()">Save Key ✓</button>
       </div>
     </div>
   </div>
-  <div class="key-banner saved" id="keyBannerSaved">
+  <div class="key-banner saved" id="keyBannerSaved" style="display:none">
     <div style="font-size:22px">✅</div>
     <div>
-      <div class="key-banner-title">Gemini API Key Saved — Ready to Use</div>
-      <div class="key-banner-sub">Your key is stored in this browser. Completely free to use.</div>
+      <div class="key-banner-title">Groq API Key Saved — Ready to Use</div>
+      <div class="key-banner-sub">Stored in your browser only. Free, fast, unlimited for normal use.</div>
       <button class="btn-clear-key" onclick="clearKey()">Clear Key</button>
     </div>
   </div>
@@ -272,7 +257,7 @@
         <div class="error-counter-title">📋 SLA Compliance Errors</div>
         <div class="error-grid">
           <div class="error-stat red"><div class="error-stat-num" id="errCount">0</div><div class="error-stat-label">Days Overdue</div></div>
-          <div class="error-stat yellow"><div class="error-stat-num" id="slaType">—</div><div class="error-stat-label">SLA Rule</div></div>
+          <div class="error-stat"><div class="error-stat-num" id="slaType" style="font-size:13px;color:var(--yellow)">—</div><div class="error-stat-label">SLA Rule</div></div>
           <div class="error-stat" id="slaStatusStat"><div class="error-stat-num" id="slaStatusNum">—</div><div class="error-stat-label">Status</div></div>
         </div>
       </div>
@@ -295,14 +280,12 @@
           <div class="verdict-reason" id="verdictReason"></div>
         </div>
       </div>
-
       <div class="res-tabs">
         <button class="res-tab active" onclick="switchRes('rissues')">Issues</button>
         <button class="res-tab" onclick="switchRes('rqa')">QA Questions</button>
         <button class="res-tab" onclick="switchRes('rimproved')">Improved Ticket</button>
         <button class="res-tab" onclick="switchRes('rrisk')">Risk</button>
       </div>
-
       <div id="rissues">
         <div class="section-group"><div class="section-label">🔴 Major Issues</div><div id="majorList"></div></div>
         <div class="section-group"><div class="section-label">🟡 Minor Issues</div><div id="minorList"></div></div>
@@ -396,7 +379,6 @@
           <div style="margin-top:10px;font-size:11px;color:var(--muted)">Error counted if ticket not updated within 48 hours.</div>
         </div>
       </div>
-
       <div style="margin-top:6px">
         <div class="feedback-header" style="font-size:14px;margin-bottom:10px">➕ Add Ticket to Tracker</div>
         <div class="field-row">
@@ -428,23 +410,26 @@
 </div>
 
 <script>
+// ─── GROQ API ─────────────────────────────────────────────────
+// Uses Groq's free API — OpenAI-compatible, no cost, no credit card
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
-
-const QA_PROMPT = `You are a Senior QA Engineer and Production Support Analyst. Analyze the Jira ticket and return ONLY a valid JSON object — no markdown fences, no explanation, no text before or after. Keep each array item under 25 words. Keep improvedTicket under 250 words. Keep riskAssessment under 80 words. finalRecommendation must be exactly "Ready" or "Needs Clarification". Use this exact shape:
+const QA_SYSTEM = `You are a Senior QA Engineer and Production Support Analyst. Analyze the Jira ticket and return ONLY a valid JSON object — no markdown fences, no explanation, no text before or after the JSON. Keep each array item under 25 words. Keep improvedTicket under 250 words. Keep riskAssessment under 80 words. finalRecommendation must be exactly "Ready" or "Needs Clarification". Use this exact shape:
 {"overallScore":6,"replicationScore":5,"majorIssues":["issue one","issue two"],"minorIssues":["minor one"],"missingInformation":["missing item"],"questionsForQA":["question?"],"improvedTicket":"rewritten ticket text","improvedReplicationSteps":["Step 1","Step 2"],"riskAssessment":"risks paragraph","finalRecommendation":"Needs Clarification","recommendationReason":"short reason"}`;
 
-// ─── API KEY ──────────────────────────────────────────────────
-function getKey() { return localStorage.getItem('geminiKey') || ''; }
+// ─── KEY MANAGEMENT ───────────────────────────────────────────
+function getKey() { return localStorage.getItem('groqKey') || ''; }
 
 function saveKey() {
   const k = document.getElementById('apiKeyInput').value.trim();
-  if (!k) { alert('Please paste your Gemini API key.'); return; }
-  localStorage.setItem('geminiKey', k);
+  if (!k) { alert('Please paste your Groq API key (starts with gsk_).'); return; }
+  localStorage.setItem('groqKey', k);
   showKeyStatus();
 }
 
 function clearKey() {
-  localStorage.removeItem('geminiKey');
+  localStorage.removeItem('groqKey');
   document.getElementById('apiKeyInput').value = '';
   showKeyStatus();
 }
@@ -455,42 +440,47 @@ function showKeyStatus() {
   document.getElementById('keyBannerSaved').style.display = key ? 'flex' : 'none';
 }
 
-// ─── GEMINI CALL ──────────────────────────────────────────────
-async function callGemini(prompt, maxTokens) {
+// ─── GROQ CALL ────────────────────────────────────────────────
+async function callGroq(systemPrompt, userPrompt, maxTokens) {
   const key = getKey();
-  if (!key) throw new Error('No API key — please enter your Gemini API key above.');
+  if (!key) throw new Error('No API key — please enter your Groq API key above.');
 
-  // Gemini REST API — works in any browser when hosted on a real domain
-  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=' + key;
-
-  let res, data;
+  let res;
   try {
-    res = await fetch(url, {
+    res = await fetch(GROQ_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + key
+      },
       body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.2 }
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: maxTokens,
+        temperature: 0.2
       })
     });
   } catch(e) {
-    throw new Error(
-      'Failed to reach Gemini API. This usually means:\n' +
-      '• The tool is running inside a preview sandbox (not a real browser tab)\n' +
-      '• Fix: Open the downloaded HTML file directly in Chrome/Edge/Firefox, OR host it on Netlify/Tiiny.host and open that URL\n' +
-      'Details: ' + e.message
-    );
+    throw new Error('Network error — make sure you are connected to the internet.\nDetails: ' + e.message);
   }
 
-  try { data = await res.json(); } catch(e) { throw new Error('Could not read Gemini response.'); }
-  if (!res.ok) throw new Error('Gemini API error ' + res.status + ': ' + (data?.error?.message || JSON.stringify(data)));
+  let data;
+  try { data = await res.json(); } catch(e) { throw new Error('Could not read response from Groq.'); }
 
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  if (!text) throw new Error('Gemini returned an empty response. Please try again.');
+  if (!res.ok) {
+    const msg = data?.error?.message || JSON.stringify(data);
+    throw new Error('Groq API error ' + res.status + ': ' + msg);
+  }
+
+  const text = data?.choices?.[0]?.message?.content || '';
+  if (!text) throw new Error('Empty response from Groq. Please try again.');
   return text;
 }
 
-// ─── STATE ───────────────────────────────────────────────────
+// ─── STATE ────────────────────────────────────────────────────
 let trackerItems = JSON.parse(localStorage.getItem('qaTracker') || '[]');
 
 // ─── TAB SWITCHING ────────────────────────────────────────────
@@ -539,18 +529,10 @@ function checkSLA() {
 
   if (!sev) return;
   const rule = getSLARule(sev);
-  if (!rule) {
-    alertBox.className = 'sla-box ok';
-    alertBox.textContent = 'ℹ️ This severity has no mandatory SLA update rule.';
-    return;
-  }
-  if (!lastUpdated) {
-    alertBox.className = 'sla-box warn';
-    alertBox.textContent = `⚠ ${sev.toUpperCase()} requires ${rule.label} updates. Enter last updated date to check compliance.`;
-    return;
-  }
+  if (!rule) { alertBox.className = 'sla-box ok'; alertBox.textContent = 'ℹ️ No mandatory SLA rule for this severity.'; return; }
+  if (!lastUpdated) { alertBox.className = 'sla-box warn'; alertBox.textContent = `⚠ ${sev.toUpperCase()} requires ${rule.label} updates. Enter last updated date to check compliance.`; return; }
 
-  const diffHours = (Date.now() - new Date(lastUpdated)) / (1000*60*60);
+  const diffHours = (Date.now() - new Date(lastUpdated)) / 3600000;
   const diffDays = Math.floor(diffHours / 24);
   const overdue = diffHours > rule.hours;
   const daysOverdue = Math.max(0, Math.floor((diffHours - rule.hours) / 24));
@@ -575,7 +557,7 @@ function checkSLA() {
 
 // ─── RINGS ────────────────────────────────────────────────────
 function drawRing(id, score, color) {
-  const r = 34, c = 2*Math.PI*r, filled = (score/10)*c;
+  const r=34, c=2*Math.PI*r, filled=(score/10)*c;
   document.getElementById(id).innerHTML = `
     <circle cx="45" cy="45" r="${r}" fill="none" stroke="#1e293b" stroke-width="7"/>
     <circle cx="45" cy="45" r="${r}" fill="none" stroke="${color}" stroke-width="7"
@@ -597,7 +579,7 @@ async function analyze() {
   const severity = document.getElementById('severity').value;
 
   document.getElementById('errMsg').style.display = 'none';
-  if (!getKey()) { showErr('Please enter your Gemini API key at the top first.'); return; }
+  if (!getKey()) { showErr('Please enter your Groq API key at the top first.'); return; }
   if (!ticket) { showErr('Please paste a Jira ticket before analyzing.'); return; }
 
   const btn = document.getElementById('analyzeBtn');
@@ -605,20 +587,18 @@ async function analyze() {
   document.getElementById('results').style.display = 'none';
 
   const slaInfo = severity ? `\nSeverity: ${severity}\nSLA Rule: ${getSLARule(severity)?.label || 'N/A'}` : '';
-  const context = `Support Owner: ${assignee || 'N/A'}\nTicket ID: ${ticketId || 'N/A'}${slaInfo}\n\n`;
-  const fullPrompt = `${QA_PROMPT}\n\nAnalyze this Jira ticket:\n\n${context}${ticket}`;
+  const userPrompt = `Support Owner: ${assignee||'N/A'}\nTicket ID: ${ticketId||'N/A'}${slaInfo}\n\nJira Ticket:\n${ticket}`;
 
   try {
-    const raw = await callGemini(fullPrompt, 2000);
+    const raw = await callGroq(QA_SYSTEM, userPrompt, 2000);
     const cleaned = raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/i,'').trim();
 
     let parsed;
     try { parsed = JSON.parse(cleaned); }
-    catch(e) { showErr('Parse error: ' + e.message + ' — Raw: ' + cleaned.slice(0,200)); return; }
+    catch(e) { showErr('Could not parse response. Please try again.\n\nRaw: ' + cleaned.slice(0,300)); return; }
 
-    // Render scores
-    drawRing('ring1', parsed.overallScore, '#4285f4');
-    drawRing('ring2', parsed.replicationScore, '#34a853');
+    drawRing('ring1', parsed.overallScore, '#f55036');
+    drawRing('ring2', parsed.replicationScore, '#ff8c00');
 
     const vbox = document.getElementById('verdictBox');
     vbox.className = 'verdict ' + (parsed.finalRecommendation === 'Ready' ? 'ready' : 'needs');
@@ -636,13 +616,12 @@ async function analyze() {
     document.getElementById('results').style.display = 'block';
     switchRes('rissues');
 
-    // Pre-fill feedback
     if (assignee) document.getElementById('fb_name').value = assignee;
     if (ticketId) document.getElementById('fb_ticket').value = ticketId;
     document.getElementById('fb_score').value = parsed.overallScore;
     document.getElementById('fb_issues').value = (parsed.majorIssues||[]).slice(0,3).join(', ');
 
-    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
 
   } catch(e) { showErr(e.message); }
   finally { btn.disabled = false; btn.textContent = 'Analyze Ticket →'; }
@@ -658,7 +637,7 @@ function showErr(msg) {
 
 // ─── FEEDBACK ─────────────────────────────────────────────────
 async function generateFeedback() {
-  if (!getKey()) { alert('Please enter your Gemini API key at the top first.'); return; }
+  if (!getKey()) { alert('Please enter your Groq API key at the top first.'); return; }
 
   const name = document.getElementById('fb_name').value.trim() || 'Team Member';
   const ticket = document.getElementById('fb_ticket').value.trim() || 'N/A';
@@ -672,25 +651,23 @@ async function generateFeedback() {
   btn.textContent = '⏳ Generating…'; btn.disabled = true;
 
   const slaNote = overdue > 0
-    ? `The ticket is ${overdue} day(s) overdue on SLA updates (${severity} requires daily/alternate-day updates). This counts as ${overdue} SLA error(s).`
-    : 'The ticket is SLA compliant.';
+    ? `The ticket is ${overdue} day(s) overdue on SLA updates. This counts as ${overdue} SLA error(s).`
+    : 'The ticket is SLA compliant with timely updates.';
 
-  const prompt = `Write a professional QA team feedback message for ${name} regarding ticket ${ticket}.
+  const userPrompt = `Write a professional QA team feedback message for ${name} regarding ticket ${ticket}.
 Tone: ${tone}
 Severity: ${severity}
 QA Score: ${score}/10
-Issues found: ${issues || 'See analysis'}
+Key Issues: ${issues || 'See analysis'}
 SLA Status: ${slaNote}
 
-Write a clear, professional paragraph (5-8 sentences) addressed to ${name} that covers: the QA score, key issues, SLA compliance, and specific actions they should take to improve. Sign off as "QA Team Lead". Write in flowing professional prose — no bullet points.`;
+Write 5-8 sentences addressed to ${name} covering: the QA score, key issues, SLA compliance, and specific improvement actions. Sign off as "QA Team Lead". Flowing prose only — no bullet points.`;
 
   try {
-    const text = await callGemini(prompt, 600);
-    const outBox = document.getElementById('feedbackOutputBox');
-    const outEl = document.getElementById('feedbackOutput');
-    outEl.textContent = text;
-    outEl.style.display = 'block';
-    outBox.style.display = 'block';
+    const text = await callGroq('You are a QA Team Lead writing professional feedback to support team members.', userPrompt, 500);
+    document.getElementById('feedbackOutput').textContent = text;
+    document.getElementById('feedbackOutput').style.display = 'block';
+    document.getElementById('feedbackOutputBox').style.display = 'block';
   } catch(e) { alert('Error: ' + e.message); }
   finally { btn.textContent = 'Generate Feedback Message →'; btn.disabled = false; }
 }
@@ -731,16 +708,16 @@ function renderTracker() {
   }
   const now = Date.now();
   let totalErrors = 0;
-  let rows = trackerItems.map((item, i) => {
+  const rows = trackerItems.map((item, i) => {
     const rule = getSLARule(item.sev);
-    const diffH = (now - new Date(item.lastUpdated)) / (1000*60*60);
+    const diffH = (now - new Date(item.lastUpdated)) / 3600000;
     const breach = rule && diffH > rule.hours;
     const daysOverdue = rule ? Math.max(0, Math.floor((diffH - rule.hours) / 24)) : 0;
     const errors = breach ? (daysOverdue || 1) : 0;
     totalErrors += errors;
     const tag = !rule ? '<span class="tag ok">No SLA</span>' : breach ? '<span class="tag breach">BREACH</span>' : '<span class="tag ok">Compliant</span>';
     return `<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:10px;color:#93c5fd;font-family:var(--mono)">${item.ticket}</td>
+      <td style="padding:10px;color:#ffb347;font-family:var(--mono)">${item.ticket}</td>
       <td style="padding:10px">${item.assignee||'—'}</td>
       <td style="padding:10px">${item.sev.toUpperCase()}</td>
       <td style="padding:10px;color:var(--muted)">${item.lastUpdated}</td>
