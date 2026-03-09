@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jira QA Analyzer — Team Feedback Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #050810;
+    --surface: #0c1120;
+    --surface2: #111827;
+    --border: #1e2d45;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --purple: #8b5cf6;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Sora', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #060d1f 0%, #0a1628 50%, #060d1f 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    backdrop-filter: blur(10px);
+  }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    display: flex; align-items: center; justify-content: center; font-size: 20px;
+    box-shadow: 0 0 20px rgba(59,130,246,0.4);
+  }
+  .logo-text { font-size: 18px; font-weight: 700; color: #f1f5f9; font-family: var(--mono); }
+  .logo-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .header-badge {
+    background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
+    color: #93c5fd; font-size: 11px; font-family: var(--mono);
+    padding: 4px 12px; border-radius: 20px;
+  }
+
+  /* LAYOUT */
+  .container { max-width: 900px; margin: 0 auto; padding: 28px 24px; }
+
+  /* TABS */
+  .main-tabs { display: flex; gap: 4px; margin-bottom: 24px; background: var(--surface); border-radius: 10px; padding: 4px; }
+  .main-tab {
+    flex: 1; padding: 10px; border: none; border-radius: 7px; cursor: pointer;
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
+    transition: all 0.2s; background: none; color: var(--muted);
+  }
+  .main-tab.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+
+  /* FORM */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px;
+  }
+  .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--mono); margin-bottom: 8px; display: block; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .field-col { display: flex; flex-direction: column; }
+  input, select, textarea {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: var(--mono); font-size: 13px; padding: 10px 13px;
+    outline: none; transition: border-color 0.2s; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+  textarea { min-height: 180px; resize: vertical; line-height: 1.65; }
+  .char-count { font-size: 11px; color: var(--muted); margin-top: 5px; font-family: var(--mono); }
+
+  /* SLA ALERT */
+  .sla-box {
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 14px;
+    font-size: 13px; line-height: 1.6; display: none;
+  }
+  .sla-box.warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.4); color: #fcd34d; display: block; }
+  .sla-box.danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; display: block; }
+  .sla-box.ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.4); color: #6ee7b7; display: block; }
+
+  /* ERROR COUNTER */
+  .error-counter {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 20px; margin-bottom: 14px;
+  }
+  .error-counter-title { font-size: 12px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .error-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .error-stat { background: var(--surface); border-radius: 8px; padding: 12px; text-align: center; border: 1px solid var(--border); }
+  .error-stat-num { font-size: 26px; font-weight: 700; font-family: var(--mono); }
+  .error-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+  .error-stat.red .error-stat-num { color: var(--red); }
+  .error-stat.yellow .error-stat-num { color: var(--yellow); }
+  .error-stat.green .error-stat-num { color: var(--green); }
+
+  .btn-analyze {
+    width: 100%; padding: 14px; border: none; border-radius: 10px; margin-top: 14px;
+    font-family: var(--sans); font-size: 15px; font-weight: 700; cursor: pointer;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    color: white; letter-spacing: 0.03em;
+    transition: all 0.2s; box-shadow: 0 4px 16px rgba(59,130,246,0.35);
+  }
+  .btn-analyze:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(59,130,246,0.5); }
+  .btn-analyze:disabled { background: var(--surface2); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ERROR MSG */
+  .err-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 14px; color: #fca5a5; font-size: 13px; margin-top: 14px; word-break: break-word; display: none; }
+
+  /* RESULTS */
+  #results { display: none; margin-top: 24px; }
+
+  /* SCORES */
+  .score-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;
+  }
+  .rings { display: flex; gap: 28px; flex-wrap: wrap; }
+  .ring-wrap { text-align: center; }
+  .ring-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; font-family: var(--mono); }
+  .verdict {
+    padding: 10px 22px; border-radius: 8px; font-size: 15px; font-weight: 700; font-family: var(--mono);
+    text-align: center;
+  }
+  .verdict.ready { background: rgba(16,185,129,0.1); border: 2px solid #065f46; color: #6ee7b7; }
+  .verdict.needs { background: rgba(245,158,11,0.1); border: 2px solid #92400e; color: #fcd34d; }
+  .verdict-reason { font-size: 12px; color: var(--muted); max-width: 200px; text-align: right; line-height: 1.5; margin-top: 8px; }
+
+  /* RESULT TABS */
+  .res-tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+  .res-tab { background: none; border: none; padding: 9px 18px; font-size: 13px; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; font-family: var(--sans); font-weight: 600; transition: all 0.15s; }
+  .res-tab.active { color: #93c5fd; border-bottom: 2px solid var(--accent); }
+
+  /* ITEMS */
+  .section-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; font-family: var(--mono); }
+  .item-block { border-left: 3px solid; border-radius: 6px; padding: 9px 13px; margin-bottom: 6px; font-size: 13px; color: #cbd5e1; line-height: 1.55; background: var(--surface2); }
+  .item-block.red { border-color: var(--red); }
+  .item-block.yellow { border-color: var(--yellow); }
+  .item-block.blue { border-color: var(--accent); }
+  .item-block.purple { border-color: var(--purple); }
+  .item-block.green { border-color: var(--green); }
+  .item-block.cyan { border-color: var(--accent2); }
+  .section-group { margin-bottom: 20px; }
+  pre.improved { background: var(--surface2); border-left: 3px solid var(--accent2); border-radius: 6px; padding: 16px; font-size: 13px; color: #cbd5e1; line-height: 1.7; white-space: pre-wrap; word-break: break-word; font-family: var(--mono); }
+
+  /* FEEDBACK PANEL */
+  .feedback-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+  .feedback-header { font-size: 16px; font-weight: 700; color: #f1f5f9; margin-bottom: 4px; }
+  .feedback-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+  .feedback-box {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; margin-bottom: 14px;
+  }
+  .feedback-box h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .feedback-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .feedback-field { display: flex; flex-direction: column; gap: 5px; }
+  .feedback-generated {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px; min-height: 120px; font-size: 13px; color: #cbd5e1; line-height: 1.75;
+    white-space: pre-wrap; word-break: break-word; font-family: var(--mono);
+    display: none;
+  }
+  .btn-gen {
+    width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer;
+    background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white;
+    font-family: var(--sans); font-size: 14px; font-weight: 700; margin-top: 10px;
+    transition: all 0.2s;
+  }
+  .btn-gen:hover { opacity: 0.9; }
+  .btn-copy {
+    padding: 8px 18px; border: 1px solid var(--border); border-radius: 7px; cursor: pointer;
+    background: var(--surface); color: var(--text); font-family: var(--sans); font-size: 12px;
+    margin-top: 10px; transition: all 0.2s;
+  }
+  .btn-copy:hover { border-color: var(--accent); color: #93c5fd; }
+
+  /* TRACKER TAB */
+  .tracker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .tracker-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .tracker-card h4 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; font-family: var(--mono); }
+  .tracker-list { list-style: none; }
+  .tracker-list li { font-size: 13px; color: #cbd5e1; padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .tracker-list li:last-child { border-bottom: none; }
+  .tag { font-size: 10px; font-family: var(--mono); padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .tag.breach { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+  .tag.warn { background: rgba(245,158,11,0.2); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+  .tag.ok { background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+
+  @media (max-width: 600px) {
+    .field-row, .tracker-grid, .feedback-row, .error-grid { grid-template-columns: 1fr; }
+    .rings { gap: 16px; }
+    .header { flex-direction: column; gap: 10px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-icon">🔍</div>
+    <div>
+      <div class="logo-text">Jira QA Analyzer</div>
+      <div class="logo-sub">Team Feedback & SLA Compliance Tool</div>
+    </div>
+  </div>
+  <div class="header-badge">Powered by Claude AI</div>
+</div>
+
+<div class="container">
+
+  <!-- API KEY BANNER -->
+  <div id="apiKeyBanner" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <span style="font-size:18px">🔑</span>
+    <div style="flex:1;min-width:200px">
+      <div style="font-size:13px;font-weight:600;color:#fcd34d;margin-bottom:3px">Anthropic API Key Required</div>
+      <div style="font-size:11px;color:#94a3b8">Your key is stored only in your browser and never sent anywhere except Anthropic's API.</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="background:#0f172a;border:1px solid #92400e;border-radius:7px;padding:8px 12px;color:#e2e8f0;font-family:monospace;font-size:13px;width:260px;outline:none"/>
+      <button onclick="saveKey()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;border-radius:7px;padding:9px 18px;font-size:13px;font-weight:700;cursor:pointer">Save Key</button>
+    </div>
+  </div>
+  <div id="apiKeyOk" style="display:none;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#6ee7b7;display:none;align-items:center;gap:10px;">
+    <span>✅</span> <span>API key saved. <a href="#" onclick="clearKey()" style="color:#94a3b8;font-size:11px;margin-left:8px">Clear key</a></span>
+  </div>
+
+  <!-- MAIN TABS -->
+  <div class="main-tabs">
+    <button class="main-tab active" onclick="switchMain('analyze')">🔍 Analyze Ticket</button>
+    <button class="main-tab" onclick="switchMain('feedback')">💬 Team Feedback</button>
+    <button class="main-tab" onclick="switchMain('tracker')">📊 SLA Tracker</button>
+  </div>
+
+  <!-- ===== ANALYZE TAB ===== -->
+  <div id="tab-analyze">
+    <div class="card">
+      <div class="field-row">
+        <div class="field-col">
+          <label class="label">Support Owner</label>
+          <input type="text" id="assignee" placeholder="e.g. John Smith"/>
+        </div>
+        <div class="field-col">
+          <label class="label">Ticket ID</label>
+          <input type="text" id="ticketId" placeholder="e.g. TKT-12406"/>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-col">
+          <label class="label">Severity Level</label>
+          <select id="severity" onchange="checkSLA()">
+            <option value="">— Select Severity —</option>
+            <option value="sev1">Sev 1 — Critical ⚡ (every 30 mins + daily)</option>
+            <option value="sev2">Sev 2 — High ⚡ (every 30 mins + daily)</option>
+            <option value="sev3a">Sev 3a ⚡ (every 4 hours + daily)</option>
+            <option value="sev3b">Sev 3b ⚡ (daily update required)</option>
+            <option value="sev4">Sev 4 🔁 (alternate day update)</option>
+            <option value="sev5">Sev 5 🔁 (alternate day update)</option>
+            <option value="sev6">Sev 6 🔁 (alternate day update)</option>
+          </select>
+        </div>
+        <div class="field-col">
+          <label class="label">Last Updated (date)</label>
+          <input type="date" id="lastUpdated" onchange="checkSLA()"/>
+        </div>
+      </div>
+
+      <!-- SLA Alert -->
+      <div class="sla-box" id="slaAlert"></div>
+
+      <!-- Error Counter -->
+      <div class="error-counter" id="errorCounter" style="display:none">
+        <div class="error-counter-title">📋 SLA Compliance Errors</div>
+        <div class="error-grid">
+          <div class="error-stat red">
+            <div class="error-stat-num" id="errCount">0</div>
+            <div class="error-stat-label">Days Overdue</div>
+          </div>
+          <div class="error-stat yellow">
+            <div class="error-stat-num" id="slaType">—</div>
+            <div class="error-stat-label">SLA Rule</div>
+          </div>
+          <div class="error-stat" id="slaStatusStat">
+            <div class="error-stat-num" id="slaStatusNum">—</div>
+            <div class="error-stat-label">Status</div>
+          </div>
+        </div>
+      </div>
+
+      <label class="label" style="margin-top:14px">Paste Full Jira Ticket</label>
+      <textarea id="ticketText" placeholder="Paste your full Jira ticket here...&#10;&#10;Include: Title, Description, Steps to Reproduce, Expected Result, Actual Result, Environment, Severity, Logs, Screenshots mentioned, etc." oninput="updateCount()"></textarea>
+      <div class="char-count"><span id="charCount">0</span> characters</div>
+
+      <button class="btn-analyze" id="analyzeBtn" onclick="analyze()">Analyze Ticket →</button>
+      <div class="err-msg" id="errMsg"></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results">
+      <div class="score-card">
+        <div class="rings">
+          <div class="ring-wrap">
+            <svg width="90" height="90" viewBox="0 0 90 90" id="ring1"></svg>
+            <div class="ring-label">Overall Quality</div>
+          </div>
+          <div class="ring-wrap">
+            <svg width="90" height="90" viewBox="0 0 90 90" id="ring2"></svg>
+            <div class="ring-label">Replication</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="verdict" id="verdictBox"></div>
+          <div class="verdict-reason" id="verdictReason"></div>
+        </div>
+      </div>
+
+      <div class="res-tabs">
+        <button class="res-tab active" onclick="switchRes('rissues')">Issues</button>
+        <button class="res-tab" onclick="switchRes('rqa')">QA Questions</button>
+        <button class="res-tab" onclick="switchRes('rimproved')">Improved Ticket</button>
+        <button class="res-tab" onclick="switchRes('rrisk')">Risk</button>
+      </div>
+
+      <div id="rissues">
+        <div class="section-group">
+          <div class="section-label">🔴 Major Issues</div>
+          <div id="majorList"></div>
+        </div>
+        <div class="section-group">
+          <div class="section-label">🟡 Minor Issues</div>
+          <div id="minorList"></div>
+        </div>
+        <div class="section-group">
+          <div class="section-label">📋 Missing Information</div>
+          <div id="missingList"></div>
+        </div>
+      </div>
+      <div id="rqa" style="display:none">
+        <div class="section-label">❓ Questions QA Should Ask</div>
+        <div id="qaList"></div>
+      </div>
+      <div id="rimproved" style="display:none">
+        <div class="section-label" style="margin-bottom:10px">✍️ Improved Ticket</div>
+        <pre class="improved" id="improvedText"></pre>
+        <div class="section-label" style="margin-top:18px;margin-bottom:8px">🔁 Improved Replication Steps</div>
+        <div id="repList"></div>
+      </div>
+      <div id="rrisk" style="display:none">
+        <div class="section-label" style="margin-bottom:8px">⚠️ Risk Assessment</div>
+        <div class="item-block red" id="riskText"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FEEDBACK TAB ===== -->
+  <div id="tab-feedback" style="display:none">
+    <div class="feedback-panel">
+      <div class="feedback-header">💬 Generate Team Feedback</div>
+      <div class="feedback-sub">Fill in the details below to generate professional feedback for your team member based on the QA analysis.</div>
+
+      <div class="feedback-box">
+        <h3>👤 Support Owner Details</h3>
+        <div class="feedback-row">
+          <div class="feedback-field">
+            <label class="label">Support Owner</label>
+            <input type="text" id="fb_name" placeholder="e.g. Sarah Johnson"/>
+          </div>
+          <div class="feedback-field">
+            <label class="label">Ticket ID</label>
+            <input type="text" id="fb_ticket" placeholder="e.g. TKT-12406"/>
+          </div>
+        </div>
+        <div class="feedback-row">
+          <div class="feedback-field">
+            <label class="label">Severity</label>
+            <select id="fb_severity">
+              <option value="">— Select —</option>
+              <option>Sev 1 — Critical</option><option>Sev 2 — High</option>
+              <option>Sev 3a</option><option>Sev 3b</option>
+              <option>Sev 4</option><option>Sev 5</option><option>Sev 6</option>
+            </select>
+          </div>
+          <div class="feedback-field">
+            <label class="label">Overall QA Score (0–10)</label>
+            <input type="number" id="fb_score" min="0" max="10" placeholder="e.g. 6"/>
+          </div>
+        </div>
+        <div class="feedback-row">
+          <div class="feedback-field">
+            <label class="label">Days Overdue (SLA)</label>
+            <input type="number" id="fb_overdue" min="0" placeholder="0 = compliant"/>
+          </div>
+          <div class="feedback-field">
+            <label class="label">Tone</label>
+            <select id="fb_tone">
+              <option value="constructive">Constructive</option>
+              <option value="firm">Firm & Direct</option>
+              <option value="encouraging">Encouraging</option>
+            </select>
+          </div>
+        </div>
+        <div class="feedback-field" style="margin-bottom:10px">
+          <label class="label">Key Issues Found (comma separated)</label>
+          <input type="text" id="fb_issues" placeholder="e.g. Missing steps to reproduce, No environment info, No expected result"/>
+        </div>
+        <button class="btn-gen" onclick="generateFeedback()">Generate Feedback Message →</button>
+      </div>
+
+      <div class="feedback-box" style="display:none" id="feedbackOutputBox">
+        <h3>📄 Generated Feedback</h3>
+        <div class="feedback-generated" id="feedbackOutput"></div>
+        <button class="btn-copy" onclick="copyFeedback()">📋 Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLA TRACKER TAB ===== -->
+  <div id="tab-tracker" style="display:none">
+    <div class="card" style="margin-bottom:18px">
+      <div class="feedback-header" style="margin-bottom:4px">📊 SLA Update Rules</div>
+      <div class="feedback-sub" style="margin-bottom:16px">Track which tickets are breaching update SLA based on severity.</div>
+
+      <div class="tracker-grid">
+        <div class="tracker-card">
+          <h4>⚡ Daily Update Required</h4>
+          <ul class="tracker-list">
+            <li>Sev 1 — Critical <span class="tag breach">Every 30 mins + Daily</span></li>
+            <li>Sev 2 — High <span class="tag breach">Every 30 mins + Daily</span></li>
+            <li>Sev 3a <span class="tag breach">Every 4 Hours + Daily</span></li>
+            <li>Sev 3b <span class="tag breach">Every Day</span></li>
+          </ul>
+          <div style="margin-top:10px;font-size:11px;color:var(--muted)">Error counted if ticket not updated within 24 hours. Sev 1/2/3a have additional intra-day check-in requirements.</div>
+        </div>
+        <div class="tracker-card">
+          <h4>🔁 Alternate Day Update Required</h4>
+          <ul class="tracker-list">
+            <li>Sev 4 <span class="tag warn">Every 2 Days</span></li>
+            <li>Sev 5 <span class="tag warn">Every 2 Days</span></li>
+            <li>Sev 6 <span class="tag warn">Every 2 Days</span></li>
+          </ul>
+          <div style="margin-top:10px;font-size:11px;color:var(--muted)">Error counted if ticket not updated within 48 hours.</div>
+        </div>
+      </div>
+
+      <!-- Add ticket to tracker -->
+      <div style="margin-top:6px">
+        <div class="feedback-header" style="font-size:14px;margin-bottom:10px">➕ Add Ticket to Tracker</div>
+        <div class="field-row">
+          <div class="field-col">
+            <label class="label">Ticket ID</label>
+            <input type="text" id="tr_ticket" placeholder="TKT-XXXXX"/>
+          </div>
+          <div class="field-col">
+            <label class="label">Support Owner</label>
+            <input type="text" id="tr_assignee" placeholder="Support owner name"/>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-col">
+            <label class="label">Severity</label>
+            <select id="tr_severity">
+              <option value="">— Select —</option>
+              <option value="sev1">Sev 1 — Critical</option>
+              <option value="sev2">Sev 2 — High</option>
+              <option value="sev3a">Sev 3a</option>
+              <option value="sev3b">Sev 3b</option>
+              <option value="sev4">Sev 4</option>
+              <option value="sev5">Sev 5</option>
+              <option value="sev6">Sev 6</option>
+            </select>
+          </div>
+          <div class="field-col">
+            <label class="label">Last Updated</label>
+            <input type="date" id="tr_lastUpdated"/>
+          </div>
+        </div>
+        <button class="btn-analyze" style="margin-top:6px" onclick="addToTracker()">Add Ticket</button>
+      </div>
+    </div>
+
+    <!-- Tracker list -->
+    <div id="trackerList"></div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ─── API KEY ─────────────────────────────────────────────────
+function getKey() {
+  return localStorage.getItem('anthropicKey') || '';
+}
+function saveKey() {
+  const k = document.getElementById('apiKeyInput').value.trim();
+  if (!k.startsWith('sk-ant-')) { alert('Please enter a valid Anthropic API key (starts with sk-ant-)'); return; }
+  localStorage.setItem('anthropicKey', k);
+  showKeyStatus();
+}
+function clearKey() {
+  localStorage.removeItem('anthropicKey');
+  document.getElementById('apiKeyInput').value = '';
+  showKeyStatus();
+}
+function showKeyStatus() {
+  const key = getKey();
+  const banner = document.getElementById('apiKeyBanner');
+  const ok = document.getElementById('apiKeyOk');
+  if (key) {
+    banner.style.display = 'none';
+    ok.style.display = 'flex';
+  } else {
+    banner.style.display = 'flex';
+    ok.style.display = 'none';
+  }
+}
+
+// ─── STATE ───────────────────────────────────────────────────
+let currentResult = null;
+let trackerItems = JSON.parse(localStorage.getItem('qaTracker') || '[]');
+
+// ─── TAB SWITCHING ───────────────────────────────────────────
+function switchMain(tab) {
+  ['analyze','feedback','tracker'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.main-tab').forEach((el,i) => {
+    el.classList.toggle('active', ['analyze','feedback','tracker'][i] === tab);
+  });
+  if (tab === 'tracker') renderTracker();
+}
+
+function switchRes(tab) {
+  ['rissues','rqa','rimproved','rrisk'].forEach(t => {
+    document.getElementById(t).style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.res-tab').forEach((el,i) => {
+    el.classList.toggle('active', ['rissues','rqa','rimproved','rrisk'][i] === tab);
+  });
+}
+
+// ─── CHAR COUNT ───────────────────────────────────────────────
+function updateCount() {
+  document.getElementById('charCount').textContent = document.getElementById('ticketText').value.length;
+}
+
+// ─── SLA CHECK ───────────────────────────────────────────────
+function getSLARule(sev) {
+  // Daily (24h) — error counted if not updated within 24 hours
+  // Sev 1 & 2 also require 30-min check-ins; Sev 3a requires 4-hour check-ins
+  const daily = ['sev1','sev2','sev3a','sev3b'];
+  // Alternate day (48h) — error counted if not updated within 48 hours
+  const altDay = ['sev4','sev5','sev6'];
+  if (sev === 'sev1') return { rule: 'daily', hours: 24, label: 'Daily + every 30 mins' };
+  if (sev === 'sev2') return { rule: 'daily', hours: 24, label: 'Daily + every 30 mins' };
+  if (sev === 'sev3a') return { rule: 'daily', hours: 24, label: 'Daily + every 4 hours' };
+  if (sev === 'sev3b') return { rule: 'daily', hours: 24, label: 'Daily' };
+  if (altDay.includes(sev)) return { rule: 'altday', hours: 48, label: 'Alternate Day' };
+  return null;
+}
+
+function checkSLA() {
+  const sev = document.getElementById('severity').value;
+  const lastUpdated = document.getElementById('lastUpdated').value;
+  const alertBox = document.getElementById('slaAlert');
+  const counter = document.getElementById('errorCounter');
+
+  alertBox.className = 'sla-box';
+  alertBox.textContent = '';
+  counter.style.display = 'none';
+
+  if (!sev) return;
+  const rule = getSLARule(sev);
+  if (!rule) {
+    alertBox.className = 'sla-box ok';
+    alertBox.textContent = `ℹ️ This severity has no mandatory SLA update rule tracked here.`;
+    return;
+  }
+
+  if (!lastUpdated) {
+    alertBox.className = 'sla-box warn';
+    alertBox.textContent = `⚠ ${sev.toUpperCase()} requires ${rule.label} updates. Please enter the last updated date to check compliance.`;
+    return;
+  }
+
+  const now = new Date();
+  const last = new Date(lastUpdated);
+  const diffMs = now - last;
+  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const overdue = diffHours > rule.hours;
+  const daysOverdue = Math.max(0, Math.floor((diffHours - rule.hours) / 24));
+
+  counter.style.display = 'block';
+  document.getElementById('errCount').textContent = overdue ? daysOverdue || '< 1' : '0';
+  document.getElementById('slaType').textContent = rule.label;
+
+  const statEl = document.getElementById('slaStatusStat');
+  const statNum = document.getElementById('slaStatusNum');
+
+  if (overdue) {
+    alertBox.className = 'sla-box danger';
+    alertBox.innerHTML = `🚨 SLA BREACH: This ${sev.toUpperCase()} ticket requires <strong>${rule.label}</strong> updates. Last updated <strong>${diffDays} day(s) ago</strong>. This counts as <strong>${daysOverdue || 1} error(s)</strong> against the team member.`;
+    statEl.className = 'error-stat red';
+    statNum.textContent = 'BREACH';
+    statNum.style.fontSize = '14px';
+  } else {
+    alertBox.className = 'sla-box ok';
+    alertBox.innerHTML = `✅ SLA Compliant: Ticket was updated within the required ${rule.label.toLowerCase()} window.`;
+    statEl.className = 'error-stat green';
+    statNum.textContent = 'OK';
+    statNum.style.fontSize = '18px';
+  }
+}
+
+// ─── RING DRAWING ─────────────────────────────────────────────
+function drawRing(id, score, color) {
+  const r = 34, c = 2 * Math.PI * r, filled = (score/10)*c;
+  document.getElementById(id).innerHTML = `
+    <circle cx="45" cy="45" r="${r}" fill="none" stroke="#1e293b" stroke-width="7"/>
+    <circle cx="45" cy="45" r="${r}" fill="none" stroke="${color}" stroke-width="7"
+      stroke-dasharray="${filled} ${c}" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+    <text x="45" y="51" text-anchor="middle" fill="#f1f5f9" font-size="20" font-weight="bold" font-family="monospace">${score}</text>`;
+}
+
+function renderList(containerId, items, cls) {
+  const el = document.getElementById(containerId);
+  if (!items || !items.length) { el.innerHTML = `<div style="color:var(--muted);font-size:13px;padding:8px">None identified.</div>`; return; }
+  el.innerHTML = items.map(x => `<div class="item-block ${cls}">${x}</div>`).join('');
+}
+
+// ─── ANALYZE ─────────────────────────────────────────────────
+async function analyze() {
+  const ticket = document.getElementById('ticketText').value.trim();
+  const assignee = document.getElementById('assignee').value.trim();
+  const ticketId = document.getElementById('ticketId').value.trim();
+  const severity = document.getElementById('severity').value;
+
+  const errEl = document.getElementById('errMsg');
+  errEl.style.display = 'none';
+
+  if (!getKey()) { showErr('Please enter your Anthropic API key at the top of the page first.'); return; }
+  if (!ticket) { showErr('Please paste a Jira ticket before analyzing.'); return; }
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true; btn.textContent = '⏳  Analyzing…';
+  document.getElementById('results').style.display = 'none';
+
+  const slaInfo = severity ? `\nSeverity: ${severity}\nSLA Rule: ${getSLARule(severity)?.label || 'N/A'}` : '';
+  const context = assignee ? `Assignee: ${assignee}\nTicket ID: ${ticketId}${slaInfo}\n\n` : '';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': getKey(),
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system: `You are a Senior QA Engineer and Production Support Analyst. Analyze the Jira ticket and return ONLY a valid JSON object — no markdown fences, no explanation. Keep each array item under 25 words. Keep improvedTicket under 250 words. Keep riskAssessment under 80 words. finalRecommendation must be exactly "Ready" or "Needs Clarification". Use this exact shape:
+{"overallScore":6,"replicationScore":5,"majorIssues":["issue"],"minorIssues":["issue"],"missingInformation":["item"],"questionsForQA":["question?"],"improvedTicket":"rewritten ticket","improvedReplicationSteps":["Step 1"],"riskAssessment":"risks paragraph","finalRecommendation":"Needs Clarification","recommendationReason":"short reason"}`,
+        messages: [{ role: 'user', content: `${context}Jira Ticket:\n\n${ticket}` }]
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) { showErr(`API error ${res.status}: ${data?.error?.message}`); return; }
+
+    const raw = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    const cleaned = raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/i,'').trim();
+
+    let parsed;
+    try { parsed = JSON.parse(cleaned); }
+    catch(e) { showErr('Parse error: ' + e.message + '. Raw: ' + cleaned.slice(0,200)); return; }
+
+    currentResult = parsed;
+    renderResults(parsed, assignee, ticketId);
+
+  } catch(e) { showErr('Fetch error: ' + e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Analyze Ticket →'; }
+}
+
+function renderResults(r, assignee, ticketId) {
+  drawRing('ring1', r.overallScore, '#3b82f6');
+  drawRing('ring2', r.replicationScore, '#06b6d4');
+
+  const vbox = document.getElementById('verdictBox');
+  vbox.className = 'verdict ' + (r.finalRecommendation === 'Ready' ? 'ready' : 'needs');
+  vbox.textContent = r.finalRecommendation === 'Ready' ? '✓  Ready' : '⚠  Needs Clarification';
+  document.getElementById('verdictReason').textContent = r.recommendationReason || '';
+
+  renderList('majorList', r.majorIssues, 'red');
+  renderList('minorList', r.minorIssues, 'yellow');
+  renderList('missingList', r.missingInformation, 'blue');
+  renderList('qaList', r.questionsForQA, 'purple');
+  renderList('repList', r.improvedReplicationSteps, 'green');
+
+  document.getElementById('improvedText').textContent = r.improvedTicket || '';
+  document.getElementById('riskText').textContent = r.riskAssessment || '';
+
+  document.getElementById('results').style.display = 'block';
+  switchRes('rissues');
+
+  // Pre-fill feedback tab
+  if (assignee) document.getElementById('fb_name').value = assignee;
+  if (ticketId) document.getElementById('fb_ticket').value = ticketId;
+  document.getElementById('fb_score').value = r.overallScore;
+  if (document.getElementById('severity').value) {
+    const sevMap = {'sev1':'Sev 1','sev2':'Sev 2','sev3a':'Sev 3a','sev3b':'Sev 3b','sev4':'Sev 4','sev5':'Sev 5','sev6':'Sev 6'};
+    document.getElementById('fb_severity').value = sevMap[document.getElementById('severity').value] || '';
+  }
+  document.getElementById('fb_issues').value = (r.majorIssues||[]).slice(0,3).join(', ');
+
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showErr(msg) {
+  const el = document.getElementById('errMsg');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+  document.getElementById('analyzeBtn').disabled = false;
+  document.getElementById('analyzeBtn').textContent = 'Analyze Ticket →';
+}
+
+// ─── FEEDBACK GENERATOR ───────────────────────────────────────
+async function generateFeedback() {
+  const name = document.getElementById('fb_name').value.trim() || 'Team Member';
+  const ticket = document.getElementById('fb_ticket').value.trim() || 'N/A';
+  const severity = document.getElementById('fb_severity').value || 'N/A';
+  const score = document.getElementById('fb_score').value || 'N/A';
+  const overdue = parseInt(document.getElementById('fb_overdue').value) || 0;
+  const tone = document.getElementById('fb_tone').value;
+  const issues = document.getElementById('fb_issues').value.trim();
+
+  if (!getKey()) { alert('Please enter your Anthropic API key at the top of the page first.'); return; }
+  const btn = document.querySelector('.btn-gen');
+  btn.textContent = '⏳ Generating…'; btn.disabled = true;
+
+  const slaNote = overdue > 0
+    ? `The ticket is ${overdue} day(s) overdue on SLA updates (${severity} requires daily/alternate-day updates). This counts as ${overdue} SLA error(s).`
+    : `The ticket is SLA compliant with timely updates.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': getKey(),
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        messages: [{
+          role: 'user',
+          content: `Write a professional QA team feedback message for ${name} regarding ticket ${ticket}.
+Tone: ${tone}
+Severity: ${severity}
+QA Score: ${score}/10
+Issues found: ${issues || 'See analysis'}
+SLA Status: ${slaNote}
+
+Write a clear, professional paragraph (5-8 sentences) addressed to ${name} that covers: the QA score, key issues, SLA compliance, and specific actions they should take to improve. Sign off as "QA Team Lead". Do not use bullet points — write in flowing professional prose.`
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+
+    const outBox = document.getElementById('feedbackOutputBox');
+    const outEl = document.getElementById('feedbackOutput');
+    outEl.textContent = text;
+    outEl.style.display = 'block';
+    outBox.style.display = 'block';
+
+  } catch(e) { alert('Error generating feedback: ' + e.message); }
+  finally { btn.textContent = 'Generate Feedback Message →'; btn.disabled = false; }
+}
+
+function copyFeedback() {
+  const text = document.getElementById('feedbackOutput').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    btn.textContent = '✓ Copied!'; setTimeout(() => btn.textContent = '📋 Copy to Clipboard', 2000);
+  });
+}
+
+// ─── TRACKER ─────────────────────────────────────────────────
+function addToTracker() {
+  const ticket = document.getElementById('tr_ticket').value.trim();
+  const assignee = document.getElementById('tr_assignee').value.trim();
+  const sev = document.getElementById('tr_severity').value;
+  const lastUpdated = document.getElementById('tr_lastUpdated').value;
+
+  if (!ticket || !sev || !lastUpdated) { alert('Please fill all fields.'); return; }
+
+  trackerItems.push({ ticket, assignee, sev, lastUpdated, addedAt: new Date().toISOString() });
+  localStorage.setItem('qaTracker', JSON.stringify(trackerItems));
+
+  document.getElementById('tr_ticket').value = '';
+  document.getElementById('tr_assignee').value = '';
+  document.getElementById('tr_severity').value = '';
+  document.getElementById('tr_lastUpdated').value = '';
+
+  renderTracker();
+}
+
+function removeFromTracker(i) {
+  trackerItems.splice(i, 1);
+  localStorage.setItem('qaTracker', JSON.stringify(trackerItems));
+  renderTracker();
+}
+
+function renderTracker() {
+  const el = document.getElementById('trackerList');
+  if (!trackerItems.length) {
+    el.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);font-size:13px;padding:32px">No tickets tracked yet. Add tickets above.</div>`;
+    return;
+  }
+
+  const now = new Date();
+  let html = `<div class="card">`;
+  html += `<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="border-bottom:1px solid var(--border)">
+      <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;text-transform:uppercase;font-family:var(--mono)">Ticket</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;text-transform:uppercase;font-family:var(--mono)">Support Owner</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;text-transform:uppercase;font-family:var(--mono)">Sev</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;text-transform:uppercase;font-family:var(--mono)">Last Updated</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;text-transform:uppercase;font-family:var(--mono)">SLA Status</th>
+      <th style="text-align:left;padding:8px 10px;color:var(--muted);font-size:11px;text-transform:uppercase;font-family:var(--mono)">Errors</th>
+      <th></th>
+    </tr></thead><tbody>`;
+
+  trackerItems.forEach((item, i) => {
+    const rule = getSLARule(item.sev);
+    const last = new Date(item.lastUpdated);
+    const diffH = (now - last) / (1000*60*60);
+    const breach = rule && diffH > rule.hours;
+    const daysOverdue = rule ? Math.max(0, Math.floor((diffH - rule.hours) / 24)) : 0;
+    const statusTag = !rule ? `<span class="tag ok">No SLA</span>`
+      : breach ? `<span class="tag breach">BREACH</span>`
+      : `<span class="tag ok">Compliant</span>`;
+    const errors = breach ? (daysOverdue || 1) : 0;
+
+    html += `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:10px;color:#93c5fd;font-family:var(--mono)">${item.ticket}</td>
+      <td style="padding:10px;color:var(--text)">${item.assignee || '—'}</td>
+      <td style="padding:10px;color:var(--text)">${item.sev.toUpperCase()}</td>
+      <td style="padding:10px;color:var(--muted)">${item.lastUpdated}</td>
+      <td style="padding:10px">${statusTag}</td>
+      <td style="padding:10px;color:${errors>0?'var(--red)':'var(--green)'};font-weight:700;font-family:var(--mono)">${errors}</td>
+      <td style="padding:10px"><button onclick="removeFromTracker(${i})" style="background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);cursor:pointer;padding:3px 8px;font-size:11px">✕</button></td>
+    </tr>`;
+  });
+
+  const totalErrors = trackerItems.reduce((sum, item) => {
+    const rule = getSLARule(item.sev);
+    if (!rule) return sum;
+    const diffH = (now - new Date(item.lastUpdated)) / (1000*60*60);
+    if (diffH <= rule.hours) return sum;
+    return sum + Math.max(1, Math.floor((diffH - rule.hours) / 24));
+  }, 0);
+
+  html += `</tbody></table>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:var(--muted)">${trackerItems.length} ticket(s) tracked</span>
+      <span style="font-size:13px;font-family:var(--mono);color:${totalErrors>0?'var(--red)':'var(--green)'}">Total SLA Errors: <strong>${totalErrors}</strong></span>
+    </div>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+showKeyStatus();
+renderTracker();
+</script>
+</body>
+</html>
