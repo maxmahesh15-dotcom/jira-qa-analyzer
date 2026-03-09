@@ -282,6 +282,7 @@
       </div>
       <div class="res-tabs">
         <button class="res-tab active" onclick="switchRes('rissues')">Issues</button>
+        <button class="res-tab" onclick="switchRes('rextended')">✅ Extended Checks</button>
         <button class="res-tab" onclick="switchRes('rqa')">QA Questions</button>
         <button class="res-tab" onclick="switchRes('rimproved')">Improved Ticket</button>
         <button class="res-tab" onclick="switchRes('rrisk')">Risk</button>
@@ -301,6 +302,9 @@
       <div id="rrisk" style="display:none">
         <div class="section-label" style="margin-bottom:8px">⚠️ Risk Assessment</div>
         <div class="item-block red" id="riskText"></div>
+      </div>
+      <div id="rextended" style="display:none">
+        <div id="extendedChecksPanel"></div>
       </div>
     </div>
   </div>
@@ -415,8 +419,39 @@
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 
-const QA_SYSTEM = `You are a Senior QA Engineer and Production Support Analyst. Analyze the Jira ticket and return ONLY a valid JSON object — no markdown fences, no explanation, no text before or after the JSON. Keep each array item under 25 words. Keep improvedTicket under 250 words. Keep riskAssessment under 80 words. finalRecommendation must be exactly "Ready" or "Needs Clarification". Use this exact shape:
-{"overallScore":6,"replicationScore":5,"majorIssues":["issue one","issue two"],"minorIssues":["minor one"],"missingInformation":["missing item"],"questionsForQA":["question?"],"improvedTicket":"rewritten ticket text","improvedReplicationSteps":["Step 1","Step 2"],"riskAssessment":"risks paragraph","finalRecommendation":"Needs Clarification","recommendationReason":"short reason"}`;
+const QA_SYSTEM = `You are a Senior QA Engineer and Production Support Analyst. Analyze the Jira ticket thoroughly and return ONLY a valid JSON object — no markdown fences, no explanation, no text before or after the JSON.
+
+Keep each array item under 30 words. Keep improvedTicket under 250 words. Keep riskAssessment under 80 words.
+finalRecommendation must be exactly "Ready" or "Needs Clarification".
+
+Analyze ALL of the following areas:
+
+STANDARD QA:
+1. Ticket Clarity - title, description, ambiguity
+2. Replication Feasibility - steps complete, logical, realistic
+3. Expected vs Actual Behavior - defined, error messages included
+4. Environment Info - Prod/UAT/QA, browser, OS, timestamp
+5. Technical Details - logs, screenshots, console errors, API issues
+6. Business Impact - impact described, severity appropriate
+7. Dependencies - related tickets, upstream/downstream systems
+8. Testing and Validation - validation steps, test scenarios
+9. Risk Assessment - data, security, financial, market data risks
+10. QA Readiness - ready for dev/investigation/replication
+
+EXTENDED QA CHECKS (analyze each explicitly):
+11. 3Ws Check - Are "What happened", "What was expected", "What was the impact" (the 3 Ws) clearly documented and updated on time?
+12. Client Communication - Is client communication documented? Are responses timely and professional? Is the client kept informed?
+13. Missed Update Days - Based on any dates/timestamps visible in the ticket, how many days appear to have no update? List specific date gaps if visible.
+14. Replication Notes - Are replication notes present? Are they correctly and clearly written? Has the support owner confirmed they personally replicated the issue? Is replication marked as successful or failed?
+15. Status Check - Is the ticket status correctly set and appropriate for the current state of the ticket?
+16. Organization Updated - Is the organization/account name correctly filled in on the ticket?
+17. Alert Source - Is the correct alert source provided (e.g. customer-reported, monitoring alert, internal)?
+18. Severity Validation - Is the severity level correctly marked as per what was communicated to the client? Does it match the impact described?
+19. Label Check - Is the label field updated? If the label is "Pjira_created", is the due date also updated?
+20. Team Assignment - Is the team field populated? If the team is "Level 2" or "L2", has the ticket been escalated to L2 appropriately?
+
+Return this exact JSON shape:
+{"overallScore":6,"replicationScore":5,"majorIssues":["issue"],"minorIssues":["issue"],"missingInformation":["item"],"questionsForQA":["question?"],"improvedTicket":"rewritten ticket","improvedReplicationSteps":["Step 1"],"riskAssessment":"risks","finalRecommendation":"Needs Clarification","recommendationReason":"reason","extendedChecks":{"threeWs":{"status":"FAIL","detail":"What/Expected/Impact not documented"},"clientComm":{"status":"PASS","detail":"Client updated on 12 Jan"},"missedUpdateDays":{"count":3,"detail":"No updates found on Jan 5, 6, 7"},"replicationNotes":{"status":"FAIL","detail":"No replication notes present"},"statusCheck":{"status":"PASS","detail":"Status correctly set to In Progress"},"organizationUpdated":{"status":"FAIL","detail":"Organization field is blank"},"alertSource":{"status":"PASS","detail":"Alert source: customer-reported"},"severityValidation":{"status":"PASS","detail":"Severity matches client communication"},"labelCheck":{"status":"FAIL","detail":"Label is Pjira_created but due date not set"},"teamAssignment":{"status":"WARN","detail":"Team is Level 2 — ticket should be escalated to L2"}}}`;
 
 // ─── KEY MANAGEMENT ───────────────────────────────────────────
 function getKey() { return localStorage.getItem('groqKey') || ''; }
@@ -495,11 +530,11 @@ function switchMain(tab) {
 }
 
 function switchRes(tab) {
-  ['rissues','rqa','rimproved','rrisk'].forEach(t => {
+  ['rissues','rextended','rqa','rimproved','rrisk'].forEach(t => {
     document.getElementById(t).style.display = t===tab ? 'block' : 'none';
   });
   document.querySelectorAll('.res-tab').forEach((el,i) => {
-    el.classList.toggle('active', ['rissues','rqa','rimproved','rrisk'][i] === tab);
+    el.classList.toggle('active', ['rissues','rextended','rqa','rimproved','rrisk'][i] === tab);
   });
 }
 
@@ -590,7 +625,7 @@ async function analyze() {
   const userPrompt = `Support Owner: ${assignee||'N/A'}\nTicket ID: ${ticketId||'N/A'}${slaInfo}\n\nJira Ticket:\n${ticket}`;
 
   try {
-    const raw = await callGroq(QA_SYSTEM, userPrompt, 2000);
+    const raw = await callGroq(QA_SYSTEM, userPrompt, 3000);
     const cleaned = raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/i,'').trim();
 
     let parsed;
@@ -612,6 +647,7 @@ async function analyze() {
     renderList('repList', parsed.improvedReplicationSteps, 'green');
     document.getElementById('improvedText').textContent = parsed.improvedTicket || '';
     document.getElementById('riskText').textContent = parsed.riskAssessment || '';
+    renderExtendedChecks(parsed.extendedChecks || null);
 
     document.getElementById('results').style.display = 'block';
     switchRes('rissues');
@@ -741,6 +777,86 @@ function renderTracker() {
       <span style="font-size:12px;color:var(--muted)">${trackerItems.length} ticket(s) tracked</span>
       <span style="font-size:13px;font-family:var(--mono);color:${totalErrors>0?'var(--red)':'var(--green)'}">Total SLA Errors: <strong>${totalErrors}</strong></span>
     </div></div>`;
+}
+
+// ─── EXTENDED CHECKS RENDERER ────────────────────────────────
+function renderExtendedChecks(ext) {
+  if (!ext) {
+    document.getElementById('extendedChecksPanel').innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px">No extended check data returned.</div>';
+    return;
+  }
+
+  const checks = [
+    { key: 'threeWs',           icon: '📋', label: '3Ws (What / Expected / Impact)' },
+    { key: 'clientComm',        icon: '💬', label: 'Client Communication' },
+    { key: 'missedUpdateDays',  icon: '📅', label: 'Missed Update Days' },
+    { key: 'replicationNotes',  icon: '🔁', label: 'Replication Notes' },
+    { key: 'statusCheck',       icon: '🏷️', label: 'Ticket Status' },
+    { key: 'organizationUpdated',icon:'🏢', label: 'Organization Updated' },
+    { key: 'alertSource',       icon: '🔔', label: 'Alert Source' },
+    { key: 'severityValidation',icon: '⚠️', label: 'Severity Validation' },
+    { key: 'labelCheck',        icon: '🔖', label: 'Label & Due Date' },
+    { key: 'teamAssignment',    icon: '👥', label: 'Team Assignment & L2 Escalation' },
+  ];
+
+  const colorMap = { PASS: '#10b981', FAIL: '#ef4444', WARN: '#f59e0b', 'N/A': '#64748b' };
+  const bgMap    = { PASS: 'rgba(16,185,129,0.08)', FAIL: 'rgba(239,68,68,0.08)', WARN: 'rgba(245,158,11,0.08)', 'N/A': 'rgba(100,116,139,0.08)' };
+  const borderMap= { PASS: 'rgba(16,185,129,0.3)', FAIL: 'rgba(239,68,68,0.3)', WARN: 'rgba(245,158,11,0.3)', 'N/A': 'rgba(100,116,139,0.2)' };
+  const emojiMap = { PASS: '✅', FAIL: '❌', WARN: '⚠️', 'N/A': '➖' };
+
+  let passCount = 0, failCount = 0, warnCount = 0;
+  checks.forEach(c => {
+    const d = ext[c.key];
+    if (!d) return;
+    const s = (d.status||'N/A').toUpperCase();
+    if (s==='PASS') passCount++;
+    else if (s==='FAIL') failCount++;
+    else if (s==='WARN') warnCount++;
+  });
+
+  let html = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
+      <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:24px;font-weight:700;color:#10b981;font-family:var(--mono)">${passCount}</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">Passed</div>
+      </div>
+      <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:24px;font-weight:700;color:#ef4444;font-family:var(--mono)">${failCount}</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">Failed</div>
+      </div>
+      <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-size:24px;font-weight:700;color:#f59e0b;font-family:var(--mono)">${warnCount}</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px">Warnings</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">`;
+
+  checks.forEach(c => {
+    const d = ext[c.key];
+    if (!d) return;
+    const s = (d.status||'N/A').toUpperCase();
+    const color  = colorMap[s]  || colorMap['N/A'];
+    const bg     = bgMap[s]     || bgMap['N/A'];
+    const border = borderMap[s] || borderMap['N/A'];
+    const emoji  = emojiMap[s]  || emojiMap['N/A'];
+    const detail = c.key === 'missedUpdateDays'
+      ? `${d.count ?? 0} day(s) missed — ${d.detail||''}`
+      : (d.detail || '');
+    html += `
+      <div style="background:${bg};border:1px solid ${border};border-radius:8px;padding:12px 16px;display:flex;align-items:flex-start;gap:12px">
+        <div style="font-size:16px;margin-top:1px">${c.icon}</div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;font-family:var(--mono);margin-bottom:3px">${c.label}</div>
+          <div style="font-size:13px;color:#cbd5e1;line-height:1.5">${detail}</div>
+        </div>
+        <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:${color};white-space:nowrap;display:flex;align-items:center;gap:4px">
+          <span>${emoji}</span> <span>${s}</span>
+        </div>
+      </div>`;
+  });
+
+  html += '</div>';
+  document.getElementById('extendedChecksPanel').innerHTML = html;
 }
 
 // ─── INIT ────────────────────────────────────────────────────
